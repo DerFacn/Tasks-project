@@ -5,7 +5,7 @@ import click
 from flask_jwt_extended import JWTManager
 
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+basedir = os.path.abspath(os.path.dirname(__file__))  # Database path
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'secret_key'

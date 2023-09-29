@@ -21,15 +21,14 @@ def register():
         return jsonify({'message': 'Username already exists!'})
 
     user = User(
-        public_id=str(uuid4()),
+        uuid=str(uuid4()),
         username=username,
         password=generate_password_hash(password),
-        admin=False,
     )
     db.session.add(user)
     db.session.commit()
-    access_token = create_access_token(identity=user.public_id)
-    refresh_token = create_refresh_token(identity=user.public_id)
+    access_token = create_access_token(identity=user.uuid)
+    refresh_token = create_refresh_token(identity=user.uuid)
 
     response = jsonify('User created!')
 
@@ -50,8 +49,8 @@ def login():
     if not check_password_hash(user.password, password):
         return jsonify({'message': 'Wrong password'}), 401
 
-    access_token = create_access_token(identity=user.public_id)
-    refresh_token = create_refresh_token(identity=user.public_id)
+    access_token = create_access_token(identity=user.uuid)
+    refresh_token = create_refresh_token(identity=user.uuid)
     response = jsonify('Login success!')
     set_access_cookies(response, access_token)
     set_refresh_cookies(response, refresh_token)
