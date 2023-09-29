@@ -1,6 +1,7 @@
 from os.path import abspath, dirname
 from os.path import exists as file_exists
 
+from flask_cors import CORS
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
@@ -8,6 +9,19 @@ from flask_jwt_extended import JWTManager
 
 basedir = abspath(dirname(__file__))  # Database path
 app = Flask(__name__)
+
+cors = cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
+# cors.cross_origin(
+# origins = '*', 
+# methods = ['GET', 'POST'],
+# headers = None, 
+# supports_credentials = False, 
+# max_age = None, 
+# send_wildcard = True, 
+# always_send = True, 
+# automatic_options = False
+# )
 
 db_filename = 'app.db'
 app.config['SECRET_KEY'] = 'secret_key'
