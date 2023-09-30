@@ -16,5 +16,7 @@ bp = Blueprint('account', __name__, url_prefix='/account')
 def info():
     user_id = get_jwt_identity()
     user_data = User.query.filter_by(uuid=user_id).one_or_none()
+    username = user_data.username
+    passwd = user_data.password
     
-    return jsonify(user_data)
+    return jsonify([username, passwd])
