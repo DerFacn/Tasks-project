@@ -8,6 +8,5 @@ def response_json(data, code):
     )
     
     resp.headers["Content-Type"] = "application/json"
-    resp.headers["Accept"] = 'application/json'
     
     return resp

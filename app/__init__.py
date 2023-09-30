@@ -11,7 +11,7 @@ from flask_jwt_extended import JWTManager
 basedir = abspath(dirname(__file__))  # Database path
 app = Flask(__name__)
 
-cors = cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = cors = CORS(app, resources={r"/*": {"origins": []}})
 csrf = CSRFProtect(app)
 
 # cors.cross_origin(
@@ -44,8 +44,12 @@ if not file_exists('./instance/' + db_filename):
         print('\nDATABASE INITIALIZED\n')
 
 
-from app import auth
-from app import todo
+from app import (
+    auth,
+    account,
+    todo,
+)
 
 app.register_blueprint(auth.bp)
+app.register_blueprint(account.bp)
 app.register_blueprint(todo.bp)

@@ -4,10 +4,9 @@ from app import db
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import cross_origin
-from app.utils import response_json
 from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, \
-    unset_jwt_cookies, jwt_required
-from flask import render_template, url_for
+    unset_jwt_cookies, jwt_required, get_jwt_identity
+from flask import render_template, make_response
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -17,15 +16,13 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def registration():
     if request.method == 'GET':
         return render_template('registration.html')
-    
-    data = request.get_json()
 
-    username = data['username']
-    password = data['password']
+    username = request.form['username']
+    password = request.form['password']
     user = User.query.filter_by(username=username).first()
 
     if user is not None:
-        return response_json('Username already exists!', 201)
+        return make_response('Username already exists!', 201)
 
     user = User(
         uuid=str(uuid4()),
@@ -39,10 +36,11 @@ def registration():
     access_token = create_access_token(identity=user.uuid)
     refresh_token = create_refresh_token(identity=user.uuid)
 
-    response = response_json('User created!', 200)
+    response = make_response('User created!', 200)
 
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
+    response.set_cookie('access_token_cookie', access_token, secure=True, httponly=True, path='/')
+    response.set_cookie('refresh_token_cookie', refresh_token, secure=True, httponly=True, 
+                        path='/auth/refresh')
 
     return response
 
@@ -52,36 +50,50 @@ def registration():
 def login():
     if request.method == 'GET':
         return render_template('login.html')
-    
-    data = request.get_json()
 
-    username = data['username']
-    password = data['password']
+    username = request.form['username']
+    password = request.form['password']
 
     user = User.query.filter_by(username=username).first()
 
     if not user:
-        return response_json('User not found!', 401)
+        return make_response('User not found!', 401)
     
     if not check_password_hash(user.password, password):
-        return response_json('Wrong password', 401)
+        return make_response('Wrong password', 401)
 
     access_token = create_access_token(identity=user.uuid)
     refresh_token = create_refresh_token(identity=user.uuid)
     
-    response = response_json('Login success!', 200)
+    response = make_response('Login success!', 200)
     
-    set_access_cookies(response, access_token)
-    set_refresh_cookies(response, refresh_token)
+    set_access_cookies(response, access_token, path='/')
+    set_refresh_cookies(response, refresh_token, path='/auth/refresh')
 
     return response
 
+@bp.route('/refresh', methods=['POST'])
+@cross_origin()
+@jwt_required()
+def refresh():
+    user_identity = get_jwt_identity()
+
+    access_token = create_access_token(identity=user_identity)
+    refresh_token = create_refresh_token(identity=user_identity)
+
+    response = make_response('', 200)
+
+    response.set_cookie('access_token_cookie', access_token, secure=True, httponly=True, path='/')
+    response.set_cookie('refresh_token_cookie', refresh_token, secure=True, httponly=True, 
+                        path='/auth/refresh')
+    
+    return response
 
 @bp.route('/logout', methods=['GET', 'POST'])
 @cross_origin()
 @jwt_required()
 def logout():
-    response = response_json('success', 200)
+    response = make_response()
     unset_jwt_cookies(response)
-    
+
     return response
