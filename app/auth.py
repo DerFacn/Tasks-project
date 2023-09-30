@@ -7,14 +7,17 @@ from flask_cors import cross_origin
 from app.utils import response_json
 from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, \
     unset_jwt_cookies, jwt_required
-
+from flask import render_template, url_for
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-@bp.route('/register', methods=['POST'])
+@bp.route('/registration', methods=['GET', 'POST'])
 @cross_origin()
-def register():
+def registration():
+    if request.method == 'GET':
+        return render_template('registration.html')
+    
     data = request.get_json()
 
     username = data['username']
@@ -44,9 +47,12 @@ def register():
     return response
 
 
-@bp.route('/login', methods=['POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 @cross_origin()
 def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    
     data = request.get_json()
 
     username = data['username']

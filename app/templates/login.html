@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+</head>
+<body>
+    <fieldset>
+        <form id="login-form" action="http://localhost:5000/auth/login" method="POST">
+            <input id="username" type="text" name="username" placeholder="имя пользователя">
+            <input id="password" type="password" name="password" placeholder="пароль">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <button type="submit" id="login-submit">отправить</button>
+        </form>
+    </fieldset>
+    <sub><a href="{{ url_for('auth.registration') }}">Создать новый аккаунт</a></sub>
+    <link rel="stylesheet" href="style.css" type="text">
+
+    <!-- <script>
+        "use strict";
+
+        let login_form = document.getElementById("login-form");
+        let login_submit = document.getElementById("login-submit");
+        
+        login_submit.addEventListener('click', (event)=>{
+            event.preventDefault();
+
+            fetch(login_form.action, {
+                'method': login_form.method,
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username.value,
+                    password: password.value
+                })
+            });
+        })
+    </script> -->
+</body>
+</html>

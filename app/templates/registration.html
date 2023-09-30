@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход</title>
+</head>
+<body>
+    <fieldset>
+        <form action="http://localhost:5000/auth/register" method="POST">
+            <input type="text" name="username" placeholder="имя пользователя">
+            <input type="password" name="password" placeholder="пароль">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <button type="submit">отправить</button>
+        </form>
+    </fieldset>
+    <sub>Уже имеете аккаунт? <a href="{{ url_for('auth.login') }}">Войти</a></sub>
+</body>
+</html>
