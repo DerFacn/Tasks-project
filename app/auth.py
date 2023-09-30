@@ -67,8 +67,9 @@ def login():
     
     response = make_response('Login success!', 200)
     
-    set_access_cookies(response, access_token, path='/')
-    set_refresh_cookies(response, refresh_token, path='/auth/refresh')
+    response.set_cookie('access_token_cookie', access_token, secure=True, httponly=True, path='/')
+    response.set_cookie('refresh_token_cookie', refresh_token, secure=True, httponly=True, 
+                        path='/auth/refresh')
 
     return response
 
