@@ -1,12 +1,11 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, render_template, make_response
 from app.models import User
-from app import db
+from app import session
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import cross_origin
-from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, \
-    unset_jwt_cookies, jwt_required, get_jwt_identity
-from flask import render_template, make_response
+from flask_jwt_extended import create_access_token, create_refresh_token, unset_jwt_cookies, jwt_required, \
+    get_jwt_identity
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -16,23 +15,28 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 def registration():
     if request.method == 'GET':
         return render_template('registration.html')
-
-    username = request.form['username']
-    password = request.form['password']
-    user = User.query.filter_by(username=username).first()
-
+    # Collect data for registration
+    username = request.form.get('username')
+    password = request.form.get('password')
+    # Validate if None
+    if not username:
+        return {'message': 'Username is required!'}, 422
+    elif not password:
+        return {'message': 'Password is required!'}, 422
+    # Check if user already exist
+    user = session.query(User).filter_by(username=username)
     if user is not None:
-        return make_response('Username already exists!', 201)
-
+        return {'message': 'User already exist!'}, 409
+    # Creating new user
     user = User(
         uuid=str(uuid4()),
         username=username,
         password=generate_password_hash(password),
     )
-
-    db.session.add(user)
-    db.session.commit()
-
+    # Add and send our new user to the database
+    session.add(user)
+    session.commit()
+    # Create tokens
     access_token = create_access_token(identity=user.uuid)
     refresh_token = create_refresh_token(identity=user.uuid)
 
@@ -51,16 +55,16 @@ def login():
     if request.method == 'GET':
         return render_template('login.html')
 
-    username = request.form['username']
-    password = request.form['password']
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-    user = User.query.filter_by(username=username).first()
+    user = session.query(User).filter_by(username=username)
 
     if not user:
-        return make_response('User not found!', 401)
+        return {'message': 'User with this username don\'t exists!'}, 401
     
     if not check_password_hash(user.password, password):
-        return make_response('Wrong password', 401)
+        return {'message': 'Wrong password!'}, 401
 
     access_token = create_access_token(identity=user.uuid)
     refresh_token = create_refresh_token(identity=user.uuid)
@@ -72,6 +76,7 @@ def login():
                         path='/auth/refresh')
 
     return response
+
 
 @bp.route('/refresh', methods=['POST'])
 @cross_origin()
@@ -89,6 +94,7 @@ def refresh():
                         path='/auth/refresh')
     
     return response
+
 
 @bp.route('/logout', methods=['GET', 'POST'])
 @cross_origin()

@@ -1,18 +1,26 @@
-from app import db
+from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship
+from sqlalchemy import String, ForeignKey
+from typing import List
+
+Base = declarative_base()
 
 
-class User(db.Model):
-    uuid = db.Column(db.String, primary_key=True, unique=True, index=True)  # uuid inserts in auth function
+class User(Base):
+    __tablename__ = 'users'
 
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)
+    uuid: Mapped[str] = mapped_column(primary_key=True, unique=True, index=True)
+    username: Mapped[str] = mapped_column(String(30), unique=True, index=True)
+    password: Mapped[str] = mapped_column(String(80))
 
-    todos = db.relationship('Todo', backref='user', lazy='dynamic', cascade="all, delete-orphan")
+    todos: Mapped[List['Todo']] = relationship(back_populates='user', cascade='all, delete-orphan')
 
 
-class Todo(db.Model):
-    user_id = db.Column(db.Integer, db.ForeignKey('user.uuid'))
-    todo_id = db.Column(db.Integer, primary_key=True, unique=True, index=True, autoincrement=True, nullable=False)
+class Todo(Base):
+    __tablename__ = 'todos'
 
-    title = db.Column(db.String, default=None)
-    text = db.Column(db.String, default=None)
+    user_uuid: Mapped[str] = mapped_column(ForeignKey('users.uuid'))
+    user: Mapped['User'] = relationship(back_populates='todos')
+    todo_id: Mapped[int] = mapped_column(primary_key=True, unique=True, index=True, autoincrement=True)
+
+    title: Mapped[str] = mapped_column(default=None)
+    text: Mapped[str] = mapped_column(default=None)

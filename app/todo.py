@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app import db
+from app import session
 from app.models import Todo
 
 

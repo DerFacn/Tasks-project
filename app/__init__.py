@@ -1,17 +1,16 @@
-from os.path import abspath, dirname
-from os.path import exists as file_exists
-
+import os
 from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from app.config import Config
 
 
-basedir = abspath(dirname(__file__))  # Database path
 app = Flask(__name__)
-
-cors = cors = CORS(app, resources={r"/*": {"origins": []}})
+app.config.from_object(Config)
+db = 'sqlite:///instance/app.db'
+jwt = JWTManager(app)
+cors = CORS(app, resources={r"/*": {"origins": []}})
 csrf = CSRFProtect(app)
 
 # cors.cross_origin(
@@ -25,23 +24,22 @@ csrf = CSRFProtect(app)
 # automatic_options = False
 # )
 
-db_filename = 'app.db'
-app.config['SECRET_KEY'] = 'secret_key'
-app.config['JWT_SECRET_KEY'] = 'secret_key'
-app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_COOKIE_SECURE'] = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_filename
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+if not os.path.exists('./instance/'):
+    os.mkdir('./instance/')
 
-db = SQLAlchemy(app)
-jwt = JWTManager(app)
+from app.models import Base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
 
-from app.models import User, Todo
+engine = create_engine(db)
+Base.metadata.create_all(bind=engine)
+session = scoped_session(sessionmaker(autoflush=False, bind=engine))
+Base.session = session.query_property()
 
-if not file_exists('./instance/' + db_filename):
-    with app.app_context():
-        db.create_all()
-        print('\nDATABASE INITIALIZED\n')
+
+@app.teardown_appcontext
+def shutdown_session(extension: None):
+    session.remove()
 
 
 from app import (
