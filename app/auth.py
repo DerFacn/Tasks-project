@@ -24,7 +24,7 @@ def registration():
     elif not password:
         return {'message': 'Password is required!'}, 422
     # Check if user already exist
-    user = session.query(User).filter_by(username=username)
+    user = session.query(User).filter_by(username=username).first()
     if user is not None:
         return {'message': 'User already exist!'}, 409
     # Creating new user
@@ -58,7 +58,7 @@ def login():
     username = request.form.get('username')
     password = request.form.get('password')
 
-    user = session.query(User).filter_by(username=username)
+    user = session.query(User).filter_by(username=username).first()
 
     if not user:
         return {'message': 'User with this username don\'t exists!'}, 401
