@@ -3,35 +3,30 @@ from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect
 from flask import Flask
 from flask_jwt_extended import JWTManager
-from app.config import Config
+# from app.api.account import todo
+# from app.api.auth import auth
+from app.misc.config import Config
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
-db = 'sqlite:///instance/app.db'
+
 jwt = JWTManager(app)
 cors = CORS(app, resources={r"/*": {"origins": []}})
 csrf = CSRFProtect(app)
 
-# cors.cross_origin(
-# origins = '*', 
-# methods = ['GET', 'POST'],
-# headers = None, 
-# supports_credentials = False, 
-# max_age = None, 
-# send_wildcard = True, 
-# always_send = True, 
-# automatic_options = False
-# )
 
-if not os.path.exists('./instance/'):
-    os.mkdir('./instance/')
+if not os.path.exists('./alchemy-db'):
+    os.makedirs('./alchemy-db')
 
-from app.models import Base
+from app.misc.models import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-engine = create_engine(db)
+engine = create_engine(
+    'sqlite:///./alchemy-db/app.db'
+)
+
 Base.metadata.create_all(bind=engine)
 session = scoped_session(sessionmaker(autoflush=False, bind=engine))
 Base.session = session.query_property()
@@ -41,13 +36,11 @@ Base.session = session.query_property()
 def shutdown_session(extension: None):
     session.remove()
 
+from . import front
+from .api.account import account, todo
+from .api.auth import auth
 
-from app import (
-    auth,
-    account,
-    todo,
-)
-
+app.register_blueprint(front.bp)
 app.register_blueprint(auth.bp)
 app.register_blueprint(account.bp)
 app.register_blueprint(todo.bp)

@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from app import session
-from app.models import Todo
+from app.misc.models import Todo
 
 
 bp = Blueprint('todo', __name__, url_prefix='/todo')

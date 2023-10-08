@@ -7,10 +7,14 @@
 </head>
 <body>
     <fieldset>
-        <form id="login-form" action="" method="POST">
-            <input id="username" type="text" name="username" placeholder="имя пользователя">
-            <input id="password" type="password" name="password" placeholder="пароль">
+        <form action="" method="POST">
+            <label for="username">имя пользователя: </label>
+            <input id="username" type="text" name="username">
 
+            <label for="password">пароль: </label>
+            <input id="password" type="password" name="password">
+
+            <!-- CSRF TOKEN -->
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
 
             <button type="submit" id="login-submit">отправить</button>

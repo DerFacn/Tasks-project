@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template, make_response
-from app.models import User
+from app.misc.models import User
 from app import session
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -10,23 +10,23 @@ from flask_jwt_extended import create_access_token, create_refresh_token, unset_
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 
-@bp.route('/registration', methods=['GET', 'POST'])
+@bp.route('/registration', methods=['POST'])
 @cross_origin()
 def registration():
-    if request.method == 'GET':
-        return render_template('registration.html')
-    # Collect data for registration
+
     username = request.form.get('username')
     password = request.form.get('password')
-    # Validate if None
+
     if not username:
         return {'message': 'Username is required!'}, 422
     elif not password:
         return {'message': 'Password is required!'}, 422
+    
     # Check if user already exist
     user = session.query(User).filter_by(username=username).first()
     if user is not None:
         return {'message': 'User already exist!'}, 409
+    
     # Creating new user
     user = User(
         uuid=str(uuid4()),
@@ -52,9 +52,6 @@ def registration():
 @bp.route('/login', methods=['GET', 'POST'])
 @cross_origin()
 def login():
-    if request.method == 'GET':
-        return render_template('login.html')
-
     username = request.form.get('username')
     password = request.form.get('password')
 
@@ -96,7 +93,7 @@ def refresh():
     return response
 
 
-@bp.route('/logout', methods=['GET', 'POST'])
+@bp.route('/logout', methods=['GET', 'POST'])#TODO СДЕЛАТЬ GET ДЛЯ LOGOUT В ДРУГОМ РОУТЕ
 @cross_origin()
 @jwt_required()
 def logout():
