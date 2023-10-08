@@ -1,16 +1,13 @@
-from flask import Blueprint, request, render_template, make_response
+from flask import request, make_response
 from app.misc.models import User
-from app import session
+from app.api import session
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token, create_refresh_token, unset_jwt_cookies, jwt_required, \
     get_jwt_identity
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-
-@bp.route('/registration', methods=['POST'])
 @cross_origin()
 def registration():
 
@@ -49,7 +46,6 @@ def registration():
     return response
 
 
-@bp.route('/login', methods=['GET', 'POST'])
 @cross_origin()
 def login():
     username = request.form.get('username')
@@ -75,7 +71,6 @@ def login():
     return response
 
 
-@bp.route('/refresh', methods=['POST'])
 @cross_origin()
 @jwt_required()
 def refresh():
@@ -93,7 +88,6 @@ def refresh():
     return response
 
 
-@bp.route('/logout', methods=['GET', 'POST'])#TODO СДЕЛАТЬ GET ДЛЯ LOGOUT В ДРУГОМ РОУТЕ
 @cross_origin()
 @jwt_required()
 def logout():
