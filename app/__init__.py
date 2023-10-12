@@ -35,5 +35,9 @@ def shutdown_session(e=None):
     session.remove()
 
 
+#импорт копонентов сайта
 from .api.router import api
+from .frontend import frontend
+
 app.register_blueprint(api)
+app.register_blueprint(frontend)
