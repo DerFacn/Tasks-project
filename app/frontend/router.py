@@ -1,5 +1,5 @@
-from flask import render_template, redirect, url_for
-from flask_jwt_extended import jwt_required
+from flask import render_template, make_response, url_for
+from flask_jwt_extended import jwt_required, unset_jwt_cookies
 
 def registration():
     return render_template('registration.html')
@@ -9,4 +9,8 @@ def login():
 
 @jwt_required()
 def logout():
-    return redirect(url_for('api.auth.logout'))
+    response = make_response()
+    unset_jwt_cookies(response)
+
+    response['Location'] = url_for('index')
+    return response, 302

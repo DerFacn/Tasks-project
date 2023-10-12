@@ -91,4 +91,4 @@ def logout():
     response = make_response()
     unset_jwt_cookies(response)
 
-    return response
+    return response, 200
