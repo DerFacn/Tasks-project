@@ -1,4 +1,4 @@
 ## Create a database
-### flask create-db
+### updated: auto initialize
 ## Run debug server
 ### flask run --debug
