@@ -35,5 +35,5 @@ def shutdown_session(e=None):
     session.remove()
 
 
-from .router import api
+from .api.router import api
 app.register_blueprint(api)

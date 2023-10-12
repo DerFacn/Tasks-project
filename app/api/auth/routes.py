@@ -1,14 +1,12 @@
 from flask import request, make_response
 from app.misc.models import User
-from app.api import session
+from app import session
 from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_cors import cross_origin
 from flask_jwt_extended import create_access_token, create_refresh_token, unset_jwt_cookies, jwt_required, \
     get_jwt_identity
 
 
-@cross_origin()
 def registration():
 
     username = request.form.get('username')
@@ -46,7 +44,6 @@ def registration():
     return response
 
 
-@cross_origin()
 def login():
     username = request.form.get('username')
     password = request.form.get('password')
@@ -71,7 +68,7 @@ def login():
     return response
 
 
-@cross_origin()
+
 @jwt_required()
 def refresh():
     user_identity = get_jwt_identity()
@@ -88,7 +85,7 @@ def refresh():
     return response
 
 
-@cross_origin()
+
 @jwt_required()
 def logout():
     response = make_response()
