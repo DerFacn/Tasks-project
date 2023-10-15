@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход</title>
+    <title>Настройки профиля</title>
 </head>
 <body>
     <fieldset>
-        <form action="" method="POST">
+        <form id="login-form" action="" method="POST">
             <label for="username">имя пользователя: </label>
             <input id="username" type="text" name="username">
 
@@ -20,8 +20,7 @@
             <button type="submit" id="login-submit">отправить</button>
         </form>
     </fieldset>
-    <sub><a href="{{ url_for('auth.registration') }}">Создать новый аккаунт</a></sub>
-    <link rel="stylesheet" href="style.css" type="text">
+    <sub>Уже имеете аккаунт? <a href="{{ url_for('index.login') }}">Войти</a></sub>
     
 </body>
 </html>

@@ -1,4 +1,4 @@
-from flask import request, make_response
+from flask import request, make_response, url_for, redirect
 from app.misc.models import User
 from app import session
 from uuid import uuid4
@@ -6,11 +6,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token, create_refresh_token, unset_jwt_cookies, jwt_required, \
     get_jwt_identity
 
-
 def registration():
 
     username = request.form.get('username')
     password = request.form.get('password')
+    need_redirect = request.form.get('redirect')
 
     if not username:
         return {'message': 'Username is required!'}, 422
@@ -35,7 +35,10 @@ def registration():
     access_token = create_access_token(identity=user.uuid)
     refresh_token = create_refresh_token(identity=user.uuid)
 
-    response = make_response('User created!', 200)
+    if need_redirect:
+        response = redirect(url_for('index.start_page'))
+    else:
+        response = make_response('User created!', 200)
 
     response.set_cookie('access_token_cookie', access_token, secure=True, httponly=True, path='/')
     response.set_cookie('refresh_token_cookie', refresh_token, secure=True, httponly=True, 
@@ -45,8 +48,13 @@ def registration():
 
 
 def login():
+
     username = request.form.get('username')
     password = request.form.get('password')
+
+    need_redirect = request.form.get('redirect')
+    # redirect приходит из фронтенда, еси он есть - после выдачи токенов
+    # браузер переходит на стартовую страницу
 
     user = session.query(User).filter_by(username=username).first()
 
@@ -59,28 +67,41 @@ def login():
     access_token = create_access_token(identity=user.uuid)
     refresh_token = create_refresh_token(identity=user.uuid)
     
-    response = make_response('Login success!', 200)
+    if need_redirect:
+        response = redirect(url_for('index.start_page'))
+    else:
+        response = make_response('Login success!', 200)
     
     response.set_cookie('access_token_cookie', access_token, secure=True, httponly=True, path='/')
     response.set_cookie('refresh_token_cookie', refresh_token, secure=True, httponly=True, 
-                        path='/auth/refresh')
+                        path='/api/auth/refresh')
 
     return response
 
 
 
-@jwt_required()
+@jwt_required(refresh=True)
 def refresh():
     user_identity = get_jwt_identity()
 
     access_token = create_access_token(identity=user_identity)
     refresh_token = create_refresh_token(identity=user_identity)
 
-    response = make_response('', 200)
+    if request.method == 'GET':
+        redirect_path = request.data.get('redirect-to')
+        
+        #TODO подумать о безопасности redirect-а
+        if not redirect_path is None:
+            response = redirect(redirect_path)
+        else:
+            response = redirect(url_for('index.start_page'))
+
+    elif request.method == 'POST':
+        response = make_response('', 200)
 
     response.set_cookie('access_token_cookie', access_token, secure=True, httponly=True, path='/')
     response.set_cookie('refresh_token_cookie', refresh_token, secure=True, httponly=True, 
-                        path='/auth/refresh')
+                        path='/api/auth/refresh')
     
     return response
 

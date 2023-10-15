@@ -7,7 +7,7 @@
 </head>
 <body>
     <fieldset>
-        <form action="" method="POST">
+        <form action="{{ url_for('api.auth.login') }}" method="POST">
             <label for="username">имя пользователя: </label>
             <input id="username" type="text" name="username">
 
@@ -16,11 +16,13 @@
 
             <!-- CSRF TOKEN -->
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <input type="hidden" name="redirect" value="True"/>
 
             <button type="submit" id="login-submit">отправить</button>
         </form>
     </fieldset>
-    <sub>Уже есть аккаунт? <a href="{{ url_for('auth.login') }}">Войти</a></sub>
+    <sub><a href="{{ url_for('index.registration') }}">Создать новый аккаунт</a></sub>
+    <link rel="stylesheet" href="style.css" type="text">
     
 </body>
 </html>

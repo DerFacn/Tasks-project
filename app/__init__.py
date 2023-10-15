@@ -13,6 +13,8 @@ jwt = JWTManager(app)
 cors = CORS(app, resources={r"/*": {"origins": []}})
 csrf = CSRFProtect(app)
 
+from app.misc import jwt_exceptions_handler
+
 
 if not os.path.exists('./alchemy-db'):
     os.makedirs('./alchemy-db')
