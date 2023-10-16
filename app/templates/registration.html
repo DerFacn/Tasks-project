@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/login.css"><!--  TODO NOCACHE -->
     <title>Вход</title>
 </head>
 <body>
-    <fieldset>
-        <form action="{{ url_for('api.auth.registration') }}" method="POST">
+    <fieldset class="login-fieldset">
+        <form class="login-fieldset__form" action="{{ url_for('api.auth.registration') }}" method="POST">
             <label for="username">имя пользователя: </label>
             <input id="username" type="text" name="username">
 
