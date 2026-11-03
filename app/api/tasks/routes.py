@@ -32,7 +32,7 @@ def get_task():
     tasks = []
     for task in query:
         tasks.append({
-            "id": task.id,
+            "id": task.task_id,
             "title": task.title,
             "text": task.text
         })
@@ -41,10 +41,10 @@ def get_task():
 
 @jwt_required()
 def delete_task():
-    task_id = request.form.get('task_id')
-    task = session.query(Task).get(task_id)
+    task_id = request.form.get('task_id', type=int)
+    task = session.query(Task).filter_by(task_id=task_id, user_uuid=get_jwt_identity()).first()
     if not task:
-        return {"msg": "Task not found!"}
+        return {"msg": "Task not found!"}, 404
     session.delete(task)
     session.commit()
     return {"msg": "Task completed!"}
